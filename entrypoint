@@ -17,7 +17,11 @@ chmod 700 "$SSH_DIR"
 chmod 600 "$SSH_FILE"
 
 SFTP_DIR="/home/$USER/sftp"
-mkdir "$SFTP_DIR"
+if [ -d "/sftp" ]; then
+  cp -R /sftp "$SFTP_DIR"
+else
+  mkdir "$SFTP_DIR"
+fi
 chown -R "$USER:sftpusers" "$SFTP_DIR"
 
 cp /sshd/* /etc/ssh/
