@@ -1,15 +1,12 @@
 FROM alpine:3.18.0
 
-RUN apk add --no-cache openssh
+RUN apk add --no-cache openssh bash && \
+    mkdir -p /var/run/sshd && \
+    rm -f /etc/ssh/ssh_host_*key*
 
-# SSH Server configuration file
-COPY sshd_config /etc/ssh/sshd_config
-COPY bin /bin
-COPY data /data
-
-RUN chmod +x /bin/* && \
-    /bin/setup-user.sh
+COPY sshd/sshd_config /etc/ssh/
+COPY entrypoint /
 
 EXPOSE 22
 
-ENTRYPOINT ["/bin/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint"]

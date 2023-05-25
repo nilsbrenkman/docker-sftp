@@ -1,0 +1,28 @@
+#!/bin/bash
+
+addgroup sftpusers
+adduser -G sftpusers -s /sbin/nologin -h "/home/$USER" -D "$USER"
+chown root:root "/home/$USER"
+chmod 755 "/home/$USER"
+echo "$USER:$PASSWD" | chpasswd
+
+SSH_DIR="/home/$USER/.ssh"
+SSH_FILE="$SSH_DIR/authorized_keys"
+mkdir "$SSH_DIR"
+for f in /keys/id_*.pub; do
+  cat "$f" >> "$SSH_FILE"
+done
+chown -R "$USER:sftpusers" "$SSH_DIR"
+chmod 700 "$SSH_DIR"
+chmod 600 "$SSH_FILE"
+
+SFTP_DIR="/home/$USER/sftp"
+mkdir "$SFTP_DIR"
+chown -R "$USER:sftpusers" "$SFTP_DIR"
+
+cp /sshd/* /etc/ssh/
+for f in /etc/ssh/ssh_host_*_key; do
+  chmod 600 "$f" || true
+done
+
+exec /usr/sbin/sshd -D -e
